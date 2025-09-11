@@ -1,0 +1,34 @@
+<!-- views/pages/testView.ejs -->
+<div class="container mt-5">
+  <h2 class="mb-4">Danh sách tài khoản</h2>
+  <table class="table table-bordered table-striped">
+    <thead class="table-primary">
+      <tr>
+        <th>#</th>
+        <th>Họ và tên</th>
+        <th>Email</th>
+        <th>Số điện thoại</th>
+        <th>Ngày sinh</th>
+        <th>Mật khẩu (đã mã hóa)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if (users && users.length > 0) { %>
+        <% users.forEach((user, idx) => { %>
+          <tr>
+            <td><%= idx + 1 %></td>
+            <td><%= user.name %></td>
+            <td><%= user.email %></td>
+            <td><%= user.phone %></td>
+            <td><%= user.date_of_birth %></td>
+            <td><%= user.password %></td>
+          </tr>
+        <% }) %>
+      <% } else { %>
+        <tr>
+          <td colspan="6" class="text-center">Không có tài khoản nào</td>
+        </tr>
+      <% } %>
+    </tbody>
+  </table>
+</div>
