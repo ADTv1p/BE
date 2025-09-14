@@ -1,5 +1,5 @@
 import db from '../../models/index.js';
-import { Op } from 'sequelize';
+import { Op, where } from 'sequelize';
 
 const getSupportProcessStepApiService = async () => {
     try {
@@ -8,6 +8,21 @@ const getSupportProcessStepApiService = async () => {
             raw: true, nest: true,
         });
         return { EM: "Lấy danh sách vị trí hỗ trợ thành công", EC: 0, DT: processSteps };
+    } catch (error) {
+        console.error(error);
+        return { EM: "Không thể lấy danh sách vị trí hỗ trợ", EC: 1, DT: null };
+    }
+};
+const getProcessStepDetailApiService = async (process_step_id) => {
+    try {
+        const processStep = await db.ProcessStep.findOne({
+			where: { process_step_id },
+			include: [{ model: db.Accessory, as: "accessory" }],
+        });
+		if (!processStep) {
+			return { EM: "Bước thao tác không tồn tại", EC: 1, DT: null };
+		}
+        return { EM: "Lấy thông tin của bước thao tác thành công", EC: 0, DT: processStep };
     } catch (error) {
         console.error(error);
         return { EM: "Không thể lấy danh sách vị trí hỗ trợ", EC: 1, DT: null };
@@ -63,6 +78,7 @@ const createProcessStepApiService = async (data) => {
 
 export default { 
     getSupportProcessStepApiService,
+	getProcessStepDetailApiService,
     checkProcessStepsExistsApiService,
     createProcessStepApiService,
 };

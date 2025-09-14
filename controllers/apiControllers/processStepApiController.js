@@ -2,12 +2,22 @@ import processStepApiService from '../../services/apiServices/processStepApiServ
 
 const getSupportProcessStepApiController = async (req, res) => {
     try {
-        const result = await processStepApiService.getSupportProcessStepApiController();
+        const result = await processStepApiService.getSupportProcessStepApiService();
         if (result.EC === 0) {
             return res.status(200).json(result);
         } else {
             return res.status(400).json(result);
         }
+    } catch (error) {
+        return res.status(500).json({ EM: 'Lỗi server', EC: 1, DT: null });
+    }
+};
+
+const getProcessStepDetailApiController = async (req, res) => {
+    try {
+        const process_step_id = req.params.process_step_id;
+        const result = await processStepApiService.getProcessStepDetailApiService(process_step_id);
+        return res.json(result);
     } catch (error) {
         return res.status(500).json({ EM: 'Lỗi server', EC: 1, DT: null });
     }
@@ -39,5 +49,6 @@ const handleCreatProcessStepApiController = async (req, res) => {
 
 export default {
     getSupportProcessStepApiController,
+    getProcessStepDetailApiController,
 	handleCreatProcessStepApiController
 };

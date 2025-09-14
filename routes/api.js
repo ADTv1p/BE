@@ -1,6 +1,8 @@
 // routes/index.js
 import express from 'express';
 import multer from 'multer';
+import fs from "fs";
+import path from "path";
 import staffApiController from '../controllers/apiControllers/staffApiController.js';
 import positionApiController from '../controllers/apiControllers/positionApiController.js';
 import accessoryApiController from '../controllers/apiControllers/accessoryApiController.js';
@@ -11,16 +13,17 @@ const router = express.Router();
 
 // Cấu hình multer để lưu trữ file
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'public/images/uploads/'); // Thư mục lưu trữ file
-    },
-    filename: (req, file, cb) => {
-        const fileName = `${Date.now()}-${file.originalname}`;
-        req.filePathForDB = `images/uploads/${fileName}`; // Lưu đường dẫn vào req để sử dụng sau
-        cb(null, fileName); // Đặt tên file
-    },
+	destination: (req, file, cb) => {
+		const uploadPath = path.join("public", "images", "uploads");
+		if (!fs.existsSync(uploadPath)) {
+			fs.mkdirSync(uploadPath, { recursive: true }); // tự tạo folder nếu chưa có
+		}
+		cb(null, uploadPath);
+	},
+	filename: (req, file, cb) => {
+		cb(null, `${Date.now()}-${file.originalname}`);
+	},
 });
-
 const upload = multer({ storage });
 
 // Staff Management
@@ -46,5 +49,5 @@ router.post('/processes/create', processApiController.handleCreatProcessApiContr
 
 router.get('/process-steps/support/list', processStepApiController.getSupportProcessStepApiController);
 router.post('/process-steps/create', processStepApiController.handleCreatProcessStepApiController);
-
+router.get('/process-steps/:process_step_id', processStepApiController.getProcessStepDetailApiController);
 export default router;

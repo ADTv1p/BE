@@ -11,7 +11,9 @@ const handleError = (error, defaultMessage) => ({
 // Lấy danh sách nhân sự
 const getAllStaffApiService = async () => {
     try {
-        const staff = await db.Staff.findAll();
+        const staff = await db.Staff.findAll({
+            include: [{ model: db.Position, as: 'position', include: [{ model: db.Process, as: 'process', include: [{ model: db.ProcessStep, as: 'steps'}] }] }],
+        });
         return { EM: "Lấy danh sách nhân sự thành công", EC: 0, DT: staff };
     } catch (error) {
         return handleError(error, "Không thể lấy danh sách nhân sự");

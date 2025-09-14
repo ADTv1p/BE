@@ -3,11 +3,9 @@ import db from '../../models/index.js';
 const getAllProcessesApiService = async () => {
     try {
        const processes = await db.Process.findAll({
-            nest: true,
             include: [
                 {
                     model: db.ProcessStep,
-                    attributes: ['process_step_id', 'step_order', 'step_name'],
                     as: "steps", order: [["step_order", "ASC"]],
                 },
             ],
