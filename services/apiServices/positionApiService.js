@@ -3,7 +3,7 @@ import db from '../../models/index.js';
 const getAllPositionsApiService = async () => {
     try {
         const positions = await db.Position.findAll({
-            include: [{ model: db.Process, as: "process" }]
+            include: [{ model: db.Process, as: "process", attributes: ["process_id", "name"] }],
         });
 
         return { EM: "Lấy danh sách vị trí thành công", EC: 0, DT: positions };
