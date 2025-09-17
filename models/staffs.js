@@ -64,11 +64,10 @@ export default (sequelize) => {
 	);
 
 	Staff.associate = (models) => {
-		Staff.belongsTo(models.Position, {
-			foreignKey: "position_id",
-			as: "position",
-		});
+		Staff.belongsTo(models.Position, { foreignKey: "position_id", as: "position" });
+		Staff.hasMany(models.WorkRecord, { foreignKey: "staff_id", as: "work_records" });
 	};
+
 
 	return Staff;
 };

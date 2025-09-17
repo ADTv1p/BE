@@ -11,6 +11,7 @@ import processStepApiController from '../controllers/apiControllers/processStepA
 import errorApiController from '../controllers/apiControllers/errorApiController.js';
 import workRecordApiController from '../controllers/apiControllers/workRecordApiController.js';
 import workOrderApiController from '../controllers/apiControllers/workOrderApiController.js';
+import statisticsApiController from '../controllers/apiControllers/statisticsApiController.js';
 
 const router = express.Router();
 
@@ -62,7 +63,7 @@ router.put('/errors/update', errorApiController.updateErrorApiController);
 
 // // WorkRecord Management
 router.get('/work-records/list', workRecordApiController.getAllWorkRecordsApiController);
-// router.get('/work-records/:id', workRecordApiController.getWorkRecordByIdApiController);
+router.get('/work-records/:work_record_id', workRecordApiController.getWorkRecordByIdApiController);
 router.post('/work-records/create', workRecordApiController.handleCreateWorkRecordApiController);
 // router.put('/work-records/update', workRecordApiController.updateWorkRecordApiController);
 
@@ -71,5 +72,13 @@ router.get('/work-orders/list', workOrderApiController.getAllWorkOrdersApiContro
 // router.get('/work-orders/:id', workOrderApiController.getWorkOrderByIdApiController);
 // router.post('/work-orders/create', workOrderApiController.createWorkOrderApiController);
 // router.put('/work-orders/update', workOrderApiController.updateWorkOrderApiController);
+
+// Error Statistics
+router.get('/statistics/work-records/errors-by-time', statisticsApiController.getErrorStatisticsByTimeApiController);
+router.get('/statistics/work-records/errors-trend', statisticsApiController.getErrorTrendDataApiController);
+router.get('/statistics/work-records/errors-type-percent', statisticsApiController.getErrorStatisticsByTimeApiController3);
+router.get('/statistics/work-records/errors-count', statisticsApiController.getErrorStatisticsByTimeApiController3);
+router.get('/statistics/work-records/errors-most-common', statisticsApiController.getErrorStatisticsByTimeApiController3);
+router.get('/statistics/work-records/errors-top-reporter', statisticsApiController.getErrorStatisticsByTimeApiController3);
 
 export default router;

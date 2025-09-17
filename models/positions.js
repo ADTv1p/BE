@@ -21,7 +21,6 @@ export default (sequelize) => {
 
 	Position.associate = (models) => {
 		Position.hasMany(models.Staff, { foreignKey: "position_id", as: "staffs" });
-		Position.hasMany(models.WorkRecord, { foreignKey: "position_id", as: "work_records" });
 		Position.belongsTo(models.Process, { foreignKey: "position_id", as: "process" });
 	};
 

@@ -16,7 +16,9 @@ const getAllPositionsApiService = async () => {
 const getSupportPositionsApiService = async () => {
     try {
         const positions = await db.Position.findAll({
-            attributes: ['position_id', 'code', 'role'], 
+            include: [{
+                model: db.Staff, as: "staffs"
+            }]
         });
         return { EM: "Lấy danh sách vị trí hỗ trợ thành công", EC: 0, DT: positions };
     } catch (error) {
