@@ -1,27 +1,45 @@
 import db from "../../models/index.js";
 import { Op } from 'sequelize';
 
-// Hàm tiện ích xử lý lỗi
+// *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *
 const handleError = (error, defaultMessage) => ({
 	EM: error.message || defaultMessage,
 	EC: 1,
 	DT: null,
 });
-
-// Lấy danh sách nhân sự
-const getAllStaffApiService = async () => {
+// *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *
+const getAllStaff = async () => {
     try {
         const staff = await db.Staff.findAll({
             include: [{ model: db.Position, as: 'position', include: [{ model: db.Process, as: 'process', include: [{ model: db.ProcessStep, as: 'steps'}] }] }],
+            order: [['updatedAt', 'DESC']]
         });
         return { EM: "Lấy danh sách nhân sự thành công", EC: 0, DT: staff };
     } catch (error) {
         return handleError(error, "Không thể lấy danh sách nhân sự");
     }
 };
-
-// Kiểm tra nhân sự đã tồn tại
-const checkStaffExistsApiService = async (email, phone) => {
+// *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *
+const staffInfo = async (staff_id) => {
+    try {
+        const staff = await db.Staff.findOne({
+            where: { staff_id: staff_id },
+            include: [{ model: db.Position, as: 'position', 
+                include: [{ 
+                    model: db.Process, as: 'process', 
+                    include: [{ 
+                        model: db.ProcessStep, as: 'steps'
+                    }] 
+                }] 
+            }],
+        });
+        return { EM: "Lấy danh sách nhân sự thành công", EC: 0, DT: staff };
+    } catch (error) {
+        return handleError(error, "Không thể lấy danh sách nhân sự");
+    }
+};
+// *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *
+const checkStaffExists = async (email, phone) => {
     try {
         const existingStaff = await db.Staff.findOne({
             where: {
@@ -36,8 +54,7 @@ const checkStaffExistsApiService = async (email, phone) => {
         throw new Error("Lỗi khi kiểm tra nhân sự tồn tại");
     }
 };
-
-// Thêm mới nhân sự
+// *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *
 const createStaffApiService = async (data) => {
     try {
         const newStaff = await db.Staff.create(data);
@@ -46,5 +63,26 @@ const createStaffApiService = async (data) => {
         return handleError(error, "Không thể thêm nhân sự mới");
     }
 };
-
-export default { getAllStaffApiService, createStaffApiService, checkStaffExistsApiService };
+// *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *
+const updateStaff = async (staff_id, updateData) => {
+	try {
+		const updated = await db.Staff.update(updateData, {
+			where: { staff_id },
+			returning: true, 
+			plain: true      
+		});
+		const updatedStaff = updated[1] || await db.Staff.findByPk(staff_id);
+		return { EM: "Cập nhật nhân sự thành công", EC: 0, DT: updatedStaff };
+	} catch (error) {
+		console.error("Lỗi cập nhật nhân sự:", error);
+		return handleError(error, "Không thể cập nhật nhân sự");
+	}
+};
+// *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *
+export default { 
+    getAllStaff, 
+    staffInfo,
+    createStaffApiService, 
+    updateStaff,
+    checkStaffExists
+};

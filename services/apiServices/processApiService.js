@@ -21,7 +21,18 @@ const checkProcessesExistsApiService = async (name) => {
     try {
         const existingProcess = await db.Process.findOne({
             where: { name },
-            raw: true, nest: true,
+        });
+        return existingProcess ? true : false;
+    } catch (error) {
+        console.error(error);
+        throw new Error("Lỗi khi kiểm tra quy trình tồn tại");
+    }
+};
+
+const checkProcessesExistsById = async (process_id) => {
+    try {
+        const existingProcess = await db.Process.findOne({
+            where: { process_id },
         });
         return existingProcess ? true : false;
     } catch (error) {
@@ -53,9 +64,26 @@ const createProcessApiService = async (data) => {
     }
 };
 
+// *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *
+const deleteProcess = async (process_id) => {
+    try {
+        const deleted = await db.Process.destroy({ where: { process_id } });
+        if (deleted) {
+            return { EM: "Xóa Thao tác thành công", EC: 0, DT: null };
+        } else {
+            return { EM: "Không tìm thấy Thao tác cần xóa", EC: 1, DT: null };
+        }
+    } catch (error) {
+        console.error(error);
+        return { EM: "Không thể xóa quy trình thao tác", EC: 1, DT: null };
+    }
+};
+
+// *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *
 export default { 
     getAllProcessesApiService, 
-    checkProcessesExistsApiService,
+    checkProcessesExistsApiService, checkProcessesExistsById,
     getSupportProcessesApiService,
     createProcessApiService,
+    deleteProcess
 };

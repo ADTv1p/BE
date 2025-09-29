@@ -1,80 +1,84 @@
 import db from "../../models/index.js";
 import { fn, col, literal } from "sequelize";
 
-const getErrorTrendData = async (period = "day") => {
-	let groupBy;
-	switch (period) {
-		case "day":
-			groupBy = literal("DATE(createdAt)");
-			break;
-		case "week":
-			groupBy = literal("YEAR(createdAt), WEEK(createdAt)");
-			break;
-		case "month":
-			groupBy = literal("YEAR(createdAt), MONTH(createdAt)");
-			break;
-		case "year":
-			groupBy = literal("YEAR(createdAt)");
-			break;
-		default:
-			groupBy = literal("DATE(createdAt)");
-	}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+const errorAllTime = async () => {
+	const total = await db.WorkRecord.count();
 
-	const trendData = await db.WorkRecord.findAll({
-        attributes: [
-            [groupBy, "period"],
-            [fn("COUNT", col("work_record_id")), "error_count"],
-        ],
-        group: ["period"],
-        order: [["period", "ASC"]],
-        raw: true,
-    });
-
-    // Ép labels thành string để FE dùng
-    const labels = trendData.map(item => item.period.toString());
-    const data = trendData.map(item => item.error_count);
-
-	return { EC: 0, EM: "Thành công", DT: { labels, data } };
+	return { EC: 0, EM: "Thành công", DT: total };
 };
 
-const getErrorDetailsByTime = async (period = "day") => {
-	let dateCondition;
-	switch (period) {
-		case "day":
-			dateCondition = literal("DATE(work_records.createdAt)");
-			break;
-		case "week":
-			dateCondition = literal("YEAR(work_records.createdAt), WEEK(work_records.createdAt)");
-			break;
-		case "month":
-			dateCondition = literal("YEAR(work_records.createdAt), MONTH(work_records.createdAt)");
-			break;
-		case "year":
-			dateCondition = literal("YEAR(work_records.createdAt)");
-			break;
-		default:
-			dateCondition = literal("DATE(work_records.createdAt)");
-	}
-
-	const stats = await db.WorkRecord.findAll({
-        attributes: [
-            [literal("DATE(WorkRecord.createdAt)"), "period"],
-            "work_record_id",
-            "note",
-            "createdAt", // tự Sequelize map WorkRecord
-        ],
-        include: [
-            { model: db.Error, as: "error" },
-            { model: db.Staff, as: "staff" },
-            { model: db.WorkOrder, as: "work_order" },
-        ],
-        order: [["createdAt", "ASC"]],
-        raw: false,
-    });
-
-	return { EC: 0, EM: "Thành công", DT: stats };
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+const errorGroupByPosition = async () => {
+	const errorData = await db.WorkRecord.findAll({
+		attributes: [
+			[col("staff->position.code"), "position_code"],
+			[col("staff->position.position_id"), "position_id"],
+			[fn("COUNT", col("work_record_id")), "total"],
+		],
+		include: [
+			{
+				model: db.Staff,
+				as: "staff",
+				attributes: [],
+				include: [
+					{
+						model: db.Position,
+						as: "position",
+						attributes: [], // đã select ở trên
+					},
+				],
+			},
+		],
+		group: ["staff->position.code", "staff->position.position_id"],
+	});
+	return { EC: 0, EM: "Thành công", DT: errorData };
 };
 
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+const errorStaffByPosition = async (positionId) => {
+	try {
+		const workRecordData = await db.WorkRecord.findAll({
+			include: [
+				{
+					model: db.Staff,
+					as: "staff",
+					include: [
+						{
+							model: db.Position,
+							where: { position_id: positionId },
+							as: "position",
+							include: [
+								{
+									model: db.Process,
+									as: "process",
+								},
+							],
+						},
+					],
+				},
+			],
+		});
+
+		return { EC: 0, EM: "Thành công", DT: workRecordData };
+	} catch (e) {
+		console.log("getStaffByPosition error:", e);
+		return { EC: 1, EM: "Lỗi server", DT: [] };
+	}
+};
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+const errorData = async () => {
+	const errorData = await db.WorkRecord.findAll({
+		include: [{ model: db.Staff, as: "staff", attributes: [], include: [{
+			model: db.Position, as: "position"
+		}] }]
+	});
+
+	return { EC: 0, EM: "Thành công", DT: errorData };
+};
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 const getErrorStatistics = async (period = "day") => {
 	let groupBy;
 	switch (period) {
@@ -97,23 +101,34 @@ const getErrorStatistics = async (period = "day") => {
 	const stats = await db.WorkRecord.findAll({
 		attributes: [
 			[groupBy, "period"],
-			[fn("COUNT", col("work_records_id")), "error_count"],
+			[fn("COUNT", col("work_record_id")), "error_count"],
 		],
 		group: ["period"],
 		order: [["period", "ASC"]],
-		raw: true,
 	});
 
 	return { EC: 0, EM: "Thành công", DT: stats };
 };
 
-export default { 
-    getErrorTrendData,
-    getErrorDetailsByTime,
-    getErrorStatistics 
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+const processAllTime = async () => {
+	const total = await db.Position.count();
+	return { EC: 0, EM: "Thành công", DT: total };
+};
 
-	// getErrorTypePercentageData,
-	// getErrorCountByPeriod,
-	// getMostCommonErrorByType,
-	// getTopErrorReporterAndReceiver
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+export default { 
+	errorAllTime,
+	errorGroupByPosition,
+	errorStaffByPosition,
+    errorData,
+    getErrorStatistics,
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+	processAllTime,           // Tổng số dữ liệu
+    // processGroupByStaff,      // Biểu đồ: Bar - thao tác theo nhân viên
+    // processByType,            // Biểu đồ: Pie/Bar - phân loại thao tác (thêm mới, cập nhật)
 };

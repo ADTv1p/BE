@@ -32,7 +32,9 @@ const upload = multer({ storage });
 
 // Staff Management
 router.get('/staff/list', staffApiController.getAllStaffApiController);
-router.post('/staff/create', upload.single('avatar'), staffApiController.handleCreateStaffApiController);
+router.get('/staff/detail/:staff_id', staffApiController.getStaffInfo);
+router.post('/staff/create', upload.single('avatar'), staffApiController.handleCreateStaff);
+router.put('/staff/update/:staff_id', staffApiController.handleUpdateStaff);
 
 // Position Management
 router.get('/positions/list', positionApiController.getAllPositionsApiController);
@@ -49,11 +51,13 @@ router.put('/accessories/update', accessoryApiController.handleUpdateAccessoryAp
 router.get('/processes/list', processApiController.getAllProcessesApiController);
 router.get('/processes/support/list', processApiController.getSupportProcessesApiController);
 router.post('/processes/create', processApiController.handleCreatProcessApiController);
+router.delete('/processes/:process_id', processApiController.handleDeleteProcess);
 
 // Process Step Management
 router.get('/process-steps/support/list', processStepApiController.getSupportProcessStepApiController);
 router.post('/process-steps/create', processStepApiController.handleCreatProcessStepApiController);
 router.get('/process-steps/:process_step_id', processStepApiController.getProcessStepDetailApiController);
+router.delete('/process-steps/:process_step_id', processStepApiController.handleDeleteProcessStep);
 
 // Error Management
 router.get('/errors/list', errorApiController.getAllErrorsApiController);
@@ -74,11 +78,17 @@ router.get('/work-orders/list', workOrderApiController.getAllWorkOrdersApiContro
 // router.put('/work-orders/update', workOrderApiController.updateWorkOrderApiController);
 
 // Error Statistics
-router.get('/statistics/work-records/errors-by-time', statisticsApiController.getErrorStatisticsByTimeApiController);
-router.get('/statistics/work-records/errors-trend', statisticsApiController.getErrorTrendDataApiController);
-router.get('/statistics/work-records/errors-type-percent', statisticsApiController.getErrorStatisticsByTimeApiController3);
-router.get('/statistics/work-records/errors-count', statisticsApiController.getErrorStatisticsByTimeApiController3);
-router.get('/statistics/work-records/errors-most-common', statisticsApiController.getErrorStatisticsByTimeApiController3);
-router.get('/statistics/work-records/errors-top-reporter', statisticsApiController.getErrorStatisticsByTimeApiController3);
+router.get('/statistics/work-records/errors-all-time', statisticsApiController.getErrorStatisticsAllTime);
+router.get('/statistics/work-records/errors-by-position', statisticsApiController.getErrorStatisticsByPosition);
+router.get('/statistics/work-records/errors-staff-by-position', statisticsApiController.getErrorStaffByPosition);
+router.get('/statistics/work-records/errors-by-time', statisticsApiController.getErrorStatisticsByTime);
+router.get('/statistics/work-records/errors-data', statisticsApiController.getErrorData);
+
+// Process Statistics
+router.get('/statistics/processes/all-time', statisticsApiController.getErrorStatisticsAllTime);
+router.get('/statistics/work-records/errors-by-position', statisticsApiController.getErrorStatisticsByPosition);
+router.get('/statistics/work-records/errors-staff-by-position', statisticsApiController.getErrorStaffByPosition);
+router.get('/statistics/work-records/errors-by-time', statisticsApiController.getErrorStatisticsByTime);
+router.get('/statistics/work-records/errors-data', statisticsApiController.getErrorData);
 
 export default router;
