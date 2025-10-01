@@ -8,6 +8,7 @@ const getAllWorkRecordsApiService = async () => {
                 { model: db.Staff, as: "staff", include: [{ model: db.Position, as: "position"}]},
                 { model: db.WorkOrder, as: "work_order", },
             ],
+            order: [['createdAt', 'DESC']],
         });
 
         return { EM: "Lấy danh sách đơn công việc thành công", EC: 0, DT: workRecords };

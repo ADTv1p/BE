@@ -10,7 +10,7 @@ export default (sequelize) => {
 			tools: DataTypes.STRING(255),
 			process_id: {
 				type: DataTypes.INTEGER,
-				allowNull: true,
+				allowNull: false,
 				references: { model: "processes", key: "process_id" },
 				onUpdate: "CASCADE",
 				onDelete: "SET NULL",
@@ -21,8 +21,9 @@ export default (sequelize) => {
 
 	Position.associate = (models) => {
 		Position.hasMany(models.Staff, { foreignKey: "position_id", as: "staffs" });
-		Position.belongsTo(models.Process, { foreignKey: "position_id", as: "process" });
+		Position.belongsTo(models.Process, { foreignKey: "process_id", as: "process" }); // sửa ở đây
 	};
+
 
 	return Position;
 };
