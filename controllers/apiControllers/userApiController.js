@@ -18,19 +18,22 @@ const handleRegisterUser = async (req, res) => {
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 const handleLoginUser = async (req, res) => {
-    try {
-        const data = req.body;
-        const result = await userApiService.loginUser(data);
-        if (result) {
-            return res.status(200).json(result);
-        } else {
-            return res.status(400).json(result);
-        }
-    } catch (error) {
-        console.error("Lỗi thống kê lỗi:", error);
-        return res.status(500).json({ EM: "Lỗi server", EC: 1, DT: null });
-    }
+	try {
+		const data = req.body;
+		const result = await userApiService.loginUser(data);
+		if (!result) {
+			return res.status(400).json({ EM: "Dữ liệu không hợp lệ", EC: 1, DT: null });
+		}
+		if (result.EC === 0) {
+			return res.status(200).json(result);
+		} 
+		return res.status(400).json(result);
+	} catch (error) {
+		console.error("Lỗi đăng nhập:", error);
+		return res.status(500).json({ EM: "Lỗi server", EC: 1, DT: null });
+	}
 };
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 const handleExportErrorData = async (req, res) => {
     try {

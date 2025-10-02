@@ -1,3 +1,4 @@
+import { Op } from 'sequelize';
 import db from '../../models/index.js';
 
 const getAllProcessesApiService = async () => {
@@ -9,6 +10,7 @@ const getAllProcessesApiService = async () => {
                     as: "steps", order: [["step_order", "ASC"]],
                 },
             ],
+            order: [["updatedAt", "DESC"]],
         });
         return { EM: "Lấy danh sách thao tác thành công", EC: 0, DT: processes };
     } catch (error) {
@@ -65,6 +67,40 @@ const createProcessApiService = async (data) => {
 };
 
 // *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *
+const updateProcess = async (data) => {
+    try {
+        const { process_id, name, description } = data;
+
+        const existing = await db.Process.findOne({
+            where: {
+                name,
+                process_id: { [Op.ne]: process_id } // loại trừ process hiện tại
+            }
+        });
+
+        if (existing) {
+            return { EM: "Tên thao tác đã tồn tại", EC: 2, DT: null };
+        }
+
+        const [updatedRows] = await db.Process.update(
+            { name, description },
+            { where: { process_id } }
+        );
+
+        if (updatedRows === 0) {
+            return { EM: "Không tìm thấy thao tác để cập nhật", EC: 3, DT: null };
+        }
+
+        const updatedProcess = await db.Process.findByPk(process_id);
+
+        return { EM: "Cập nhật thao tác thành công", EC: 0, DT: updatedProcess };
+    } catch (error) {
+        console.error(error);
+        return { EM: "Không thể cập nhật thao tác", EC: 1, DT: null };
+    }
+};
+
+// *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *
 const deleteProcess = async (process_id) => {
     try {
         const deleted = await db.Process.destroy({ where: { process_id } });
@@ -85,5 +121,6 @@ export default {
     checkProcessesExistsApiService, checkProcessesExistsById,
     getSupportProcessesApiService,
     createProcessApiService,
+    updateProcess,
     deleteProcess
 };

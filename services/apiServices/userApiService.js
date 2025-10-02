@@ -1,6 +1,21 @@
 import db from "../../models/index.js";
+import jwt from "jsonwebtoken";
 import { fn, col, literal } from "sequelize";
 import bcrypt from "bcrypt";
+const JWT_SECRET = "beanam"
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+// Hàm tạo token riêng
+const createToken = (user) => {
+	return jwt.sign(
+		{
+			id: user.id,
+			email: user.email,
+		},
+		JWT_SECRET,
+		{ expiresIn: "5h" }
+	);
+};
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 // Hàm đăng ký người dùng
@@ -37,12 +52,18 @@ const loginUser = async ({ email, password }) => {
 	const existing = await db.Users.findOne({ where: { email } });
 	if (!existing) return { EC: 2, EM: "Tài khoản không tồn tại!", DT: null };
 
-	// So sánh mật khẩu
 	const isMatch = await bcrypt.compare(password, existing.password);
-	if (!isMatch) return { EC: 3, EM: "Mật khẩu không đúng", DT: null };
+	if (!isMatch) return { EC: 3, EM: "Email hoặc mật khẩu không đúng", DT: null };
 
-	// Đăng nhập thành công
-	return { EC: 0, EM: "Đăng nhập thành công", DT: existing };
+	// Tạo token
+	const token = createToken(existing);
+
+	// Trả về thông tin cần thiết cho FE
+	return {
+		EC: 0,
+		EM: "Đăng nhập thành công",
+		DT: { user: { user_id: existing.user_id, name: existing.name, email: existing.email }, token },
+	};
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 

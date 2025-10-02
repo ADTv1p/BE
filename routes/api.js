@@ -58,6 +58,7 @@ router.get('/processes/list', processApiController.getAllProcessesApiController)
 router.get('/processes/support/list', processApiController.getSupportProcessesApiController);
 router.post('/processes/create', processApiController.handleCreatProcessApiController);
 router.delete('/processes/:process_id', processApiController.handleDeleteProcess);
+router.put('/processes/:process_id', processApiController.handleUpdateProcess);
 
 // Process Step Management
 router.get('/process-steps/support/list', processStepApiController.getSupportProcessStepApiController);
