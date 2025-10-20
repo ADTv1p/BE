@@ -49,9 +49,31 @@ const createPositionApiService = async (data) => {
     }
 };
 
+const updatePositionApiService = async ( positionId, data ) => {
+	try {
+		const position = await db.Position.findByPk(positionId);
+		if (!position) {
+			return { EM: "Không tìm thấy vị trí cần cập nhật", EC: 1, DT: null };
+		}
+
+		await position.update({
+            code: data.code,
+            role: data.role,
+            tools: data.tools,
+            process_id: data.process_id
+        });
+
+		return { EM: "Cập nhật vị trí thành công", EC: 0, DT: position };
+	} catch (error) {
+		console.error(error);
+		return { EM: "Không thể cập nhật vị trí", EC: 1, DT: null };
+	}
+};
+
 export default { 
     getAllPositionsApiService, 
     getSupportPositionsApiService, 
     createPositionApiService, 
-    checkPositionExistsApiService 
+    checkPositionExistsApiService,
+    updatePositionApiService
 };

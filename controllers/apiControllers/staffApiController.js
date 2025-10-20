@@ -37,23 +37,13 @@ const handleCreateStaff = async (req, res) => {
     try {
        const { full_name, email, phone, position_id, department, date_of_birth, start_date, status } = req.body;
         const avatar = req.file ? `images/uploads/${req.file.filename}` : null;
-
-        console.log("Received data:", req.body);
-        console.log("Avatar path:", avatar);
-
-
-        // Kiểm tra dữ liệu đầu vào
+        
         if (!full_name || !email || !phone || !position_id) {
             return res.json({ EM: 'Thiếu thông tin bắt buộc', EC: 1, DT: null });
         }
 
-        // Gọi service để thêm mới nhân sự
         const result = await staffService.createStaffApiService({ full_name, email, phone, position_id, department, date_of_birth, start_date, status, avatar });
-        if (result.EC === 0) {
-            return res.json(result);
-        } else {
-            return res.json(result);
-        }
+        return res.json(result);
     } catch (error) {
         return res.status(500).json({ EM: 'Lỗi server', EC: 1, DT: null });
     }
@@ -64,16 +54,18 @@ const handleCreateStaff = async (req, res) => {
 const handleUpdateStaff = async (req, res) => {
 	try {
 		const { staff_id } = req.params;
-		const updateData = {};
-		for (const key in req.body) {
-			if (req.body[key] !== undefined && req.body[key] !== null) {
-				updateData[key] = req.body[key];
-			}
-		}
-		console.log("Staff update:", staff_id, updateData);
+        const updateData = {};
+        for (const key in req.body) {
+            if (req.body[key] !== undefined && req.body[key] !== null) {
+                updateData[key] = req.body[key];
+            }
+        }
 
-		// gọi service với updateData chỉ chứa những trường thay đổi
-		const result = await staffService.updateStaff(staff_id, updateData);
+        if (req.file) {
+            updateData.avatar = `images/uploads/${req.file.filename}`;
+        }
+
+        const result = await staffService.updateStaff(staff_id, updateData);
 		return res.json(result);
 	} catch (error) {
 		console.error("Lỗi cập nhật nhân viên:", error);

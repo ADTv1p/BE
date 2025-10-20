@@ -52,8 +52,25 @@ const handleCreatePositionApiController = async (req, res) => {
     }
 };
 
+const handleUpdatePositionApiController = async (req, res) => {
+    const { positionId } = req.params;
+    const { code, role, tools, process_id } = req.body;
+    const data = { code, role, tools, process_id }
+    try {
+        const result = await positionApiService.updatePositionApiService(positionId, data);
+        if (result.EC === 0) {
+            return res.status(201).json(result);
+        } else {
+            return res.status(400).json(result);
+        }
+    } catch (error) {
+        return res.status(500).json({ EM: 'Lỗi server', EC: 1, DT: null });
+    }
+};
+
 export default { 
     getAllPositionsApiController, 
     getSupportPositionsApiController, 
-    handleCreatePositionApiController 
+    handleCreatePositionApiController,
+    handleUpdatePositionApiController
 };

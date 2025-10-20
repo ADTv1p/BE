@@ -13,7 +13,7 @@ export default (sequelize) => {
 				allowNull: false,
 				references: { model: "processes", key: "process_id" },
 				onUpdate: "CASCADE",
-				onDelete: "SET NULL",
+				onDelete: "CASCADE",
 			},
 		},
 		{ tableName: "positions", timestamps: false }

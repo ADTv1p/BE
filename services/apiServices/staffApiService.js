@@ -57,7 +57,24 @@ const checkStaffExists = async (email, phone) => {
 // *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *
 const createStaffApiService = async (data) => {
     try {
-        const newStaff = await db.Staff.create(data);
+        const emailExists = await db.Staff.findOne({ where: { email: data.email } });
+        if (emailExists) return { EM: "Email đã tồn tại", EC: 1, DT: null };
+
+        const phoneExists = await db.Staff.findOne({ where: { phone: data.phone } });
+        if (phoneExists) return { EM: "Số điện thoại đã tồn tại", EC: 1, DT: null };
+
+        const newStaff = await db.Staff.create({
+            full_name: data.full_name,
+            email: data.email,
+            phone: data.phone,
+            position_id: data.position_id,
+            department: data.department,
+            date_of_birth: data.date_of_birth,
+            start_date: data.start_date,
+            status: data.status,
+            avatar: data.avatar,
+        });
+
         return { EM: "Thêm nhân sự thành công", EC: 0, DT: newStaff };
     } catch (error) {
         return handleError(error, "Không thể thêm nhân sự mới");
@@ -65,18 +82,18 @@ const createStaffApiService = async (data) => {
 };
 // *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *
 const updateStaff = async (staff_id, updateData) => {
-	try {
-		const updated = await db.Staff.update(updateData, {
-			where: { staff_id },
-			returning: true, 
-			plain: true      
-		});
-		const updatedStaff = updated[1] || await db.Staff.findByPk(staff_id);
-		return { EM: "Cập nhật nhân sự thành công", EC: 0, DT: updatedStaff };
-	} catch (error) {
-		console.error("Lỗi cập nhật nhân sự:", error);
-		return handleError(error, "Không thể cập nhật nhân sự");
-	}
+    try {
+        const updated = await db.Staff.update(updateData, {
+            where: { staff_id },
+            returning: true,
+            plain: true,
+        });
+        const updatedStaff = updated[1] || await db.Staff.findByPk(staff_id);
+        return { EM: "Cập nhật nhân sự thành công", EC: 0, DT: updatedStaff };
+    } catch (error) {
+        console.error("Lỗi cập nhật nhân sự:", error);
+        return handleError(error, "Không thể cập nhật nhân sự");
+    }
 };
 // *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *
 export default { 

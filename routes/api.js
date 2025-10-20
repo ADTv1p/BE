@@ -40,11 +40,12 @@ router.post('/user/logout', staffApiController.handleCreateStaff);
 router.get('/staff/list', staffApiController.getAllStaffApiController);
 router.get('/staff/detail/:staff_id', staffApiController.getStaffInfo);
 router.post('/staff/create', upload.single('avatar'), staffApiController.handleCreateStaff);
-router.put('/staff/update/:staff_id', staffApiController.handleUpdateStaff);
+router.put('/staff/update/:staff_id', upload.single('avatar'), staffApiController.handleUpdateStaff);
 
 // Position Management
 router.get('/positions/list', positionApiController.getAllPositionsApiController);
 router.post('/positions/create', positionApiController.handleCreatePositionApiController);
+router.post('/positions/:positionId/update', positionApiController.handleUpdatePositionApiController);
 router.get('/positions/support/list', positionApiController.getSupportPositionsApiController);
 
 // Accessory Management
@@ -58,6 +59,7 @@ router.get('/processes/list', processApiController.getAllProcessesApiController)
 router.get('/processes/support/list', processApiController.getSupportProcessesApiController);
 router.post('/processes/create', processApiController.handleCreatProcessApiController);
 router.delete('/processes/:process_id', processApiController.handleDeleteProcess);
+router.post('/processes/:replace-and-delete', processApiController.handleRelaceAndDeleteProcess);
 router.put('/processes/:process_id', processApiController.handleUpdateProcess);
 
 // Process Step Management

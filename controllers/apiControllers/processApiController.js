@@ -78,21 +78,43 @@ const handleDeleteProcess = async (req, res) => {
 		if (!exists) {
 			return res.json({ EM: "Thao tác này không tồn tại!", EC: 1, DT: null });
 		}
-		const result = await processApiService.deleteProcess(process_id);
-		if (result.EC === 0) {
-			return res.status(200).json(result);
+		const canDelete = await processApiService.checkBeforeDeleteProcess(process_id);
+		if (canDelete.EC === 0) {
+			const result = await processApiService.deleteProcess(process_id);
+			return res.json(result);
+		} else if (canDelete.EC === 3) {
+			return res.json(canDelete);
 		} else {
-			return res.status(400).json(result);
+			return res.json(canDelete);
 		}
 	} catch (error) {
 		return res.status(500).json({ EM: 'Lỗi server', EC: 1, DT: null });
 	}
 };
+
+// *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *
+const handleRelaceAndDeleteProcess = async (req, res) => {
+	try {
+		const { old_process_id, new_process_id } = req.body;
+		if (!old_process_id || !new_process_id) {
+			return res.json({ EM: 'old_process_id và new_process_id không tồn tại', EC: 1, DT: null });
+		}
+		if (old_process_id === new_process_id) {
+			return res.json({ EM: 'old_process_id và new_process_id không được trùng nhau', EC: 1, DT: null });
+		}
+		const result = await processApiService.replaceAndDeleteProcess(old_process_id, new_process_id);
+		return res.json(result);
+	} catch (error) {
+		return res.status(500).json({ EM: 'Lỗi server', EC: 1, DT: null });
+	}
+};
+
 // *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *    *
 export default {
 	getAllProcessesApiController,
     getSupportProcessesApiController,
 	handleCreatProcessApiController,
 	handleUpdateProcess,
+	handleRelaceAndDeleteProcess,
 	handleDeleteProcess
 };

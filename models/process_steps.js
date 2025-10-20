@@ -10,7 +10,7 @@ export default (sequelize) => {
         allowNull: false,
         references: { model: "processes", key: "process_id" },
         onUpdate: "CASCADE",
-        onDelete: "RESTRICT",
+        onDelete: "CASCADE",
       },
       accessory_id: {
         type: DataTypes.INTEGER,

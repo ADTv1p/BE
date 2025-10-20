@@ -22,12 +22,12 @@ const handleLoginUser = async (req, res) => {
 		const data = req.body;
 		const result = await userApiService.loginUser(data);
 		if (!result) {
-			return res.status(400).json({ EM: "Dữ liệu không hợp lệ", EC: 1, DT: null });
+			return res.json({ EM: "Dữ liệu không hợp lệ", EC: 1, DT: null });
 		}
 		if (result.EC === 0) {
-			return res.status(200).json(result);
+			return res.json(result);
 		} 
-		return res.status(400).json(result);
+		return res.json(result);
 	} catch (error) {
 		console.error("Lỗi đăng nhập:", error);
 		return res.status(500).json({ EM: "Lỗi server", EC: 1, DT: null });
@@ -74,8 +74,6 @@ const handleExportErrorData = async (req, res) => {
     }
 };
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 export default {
     handleRegisterUser,

@@ -28,7 +28,7 @@ export default (sequelize) => {
 				allowNull: false,
 				references: {
 					model: "positions",
-					key: "id",
+					key: "position_id",
 				},
 				onUpdate: "CASCADE",
 				onDelete: "RESTRICT",

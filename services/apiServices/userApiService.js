@@ -24,13 +24,17 @@ const registerUser = async ({ name, email, password, phone, date_of_birth }) => 
 		return { EC: 1, EM: "Thiếu thông tin bắt buộc" };
 	}
 
-	// Kiểm tra email đã tồn tại chưa
-	const existing = await db.Users.findOne({ where: { email } });
-	if (existing) return { EC: 2, EM: "Email đã được sử dụng" };
+	// Kiểm tra email đã tồn tại
+	const existingEmail = await db.Users.findOne({ where: { email } });
+	if (existingEmail) return { EC: 2, EM: "Email đã được sử dụng" };
+
+	// Kiểm tra số điện thoại đã tồn tại
+	const existingPhone = await db.Users.findOne({ where: { phone } });
+	if (existingPhone) return { EC: 3, EM: "Số điện thoại đã được sử dụng" };
 
 	// Mã hóa mật khẩu
 	const hashedPassword = await bcrypt.hash(password, 10);
-
+		
 	// Tạo user mới
 	const newUser = await db.Users.create({
 		name,
