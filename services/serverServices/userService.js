@@ -58,7 +58,6 @@ const findUserByUsername = async (username) => {
 const getAllUsers = async () => {
 	try {
 		const users = await db.Users.findAll();
-    console.log(users);
 		return { EM: "Lấy danh sách người dùng thành công", EC: 0, DT: users };
 	} catch (error) {
 		return handleError(error, "Không thể lấy danh sách người dùng");

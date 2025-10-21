@@ -26,7 +26,7 @@ const handleCreateAccessoryApiController = async (req, res) => {
             return res.json({ EM: 'Tên và loại phụ kiện đều là bắt buộc', EC: 1, DT: null });
         }
 
-        const exists = await accessoryApiService.checkAccessoryExistsApiService(name);
+        const exists = await accessoryApiService.checkAccessoryExistsApiService({ name, accessoryId: '' });
         if (exists) {
             return res.status(400).json({ EM: 'Phụ kiện đã tồn tại', EC: 1, DT: null });
         }
@@ -50,7 +50,7 @@ const handleUpdateAccessoryApiController = async (req, res) => {
             return res.json({ EM: 'Tên và loại phụ kiện đều là bắt buộc', EC: 1, DT: null });
         }
 
-        const exists = await accessoryApiService.checkAccessoryExistsApiService(name);
+        const exists = await accessoryApiService.checkAccessoryExistsApiService({ name, accessoryId: accessory_id });
         if (exists) {
             return res.json({ EM: 'Phụ kiện đã tồn tại', EC: 1, DT: null });
         }

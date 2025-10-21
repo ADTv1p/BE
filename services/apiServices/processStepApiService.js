@@ -5,6 +5,7 @@ const getSupportProcessStepApiService = async () => {
     try {
         const processSteps = await db.ProcessStep.findAll({
             attributes: ['position_id', 'code'], 
+			order: [['updatedAt', 'DESC']],
             raw: true, nest: true,
         });
         return { EM: "Lấy danh sách vị trí hỗ trợ thành công", EC: 0, DT: processSteps };

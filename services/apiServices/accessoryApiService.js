@@ -1,8 +1,12 @@
 import db from '../../models/index.js';
+import { Op } from 'sequelize';
 
 const getAllAccessoriesApiService = async () => {
     try {
-        const accessories = await db.Accessory.findAll({ raw: true, nest: true });
+        const accessories = await db.Accessory.findAll({
+            order: [['updatedAt', 'DESC']], // hoặc 'ASC' nếu muốn tăng dần
+            raw: true, nest: true,
+        });
         return { EM: "Lấy danh sách phụ kiện thành công", EC: 0, DT: accessories };
     } catch (error) {
         console.error(error);
@@ -14,6 +18,7 @@ const getSupportAccessoriesApiService = async () => {
     try {
         const accessories = await db.Accessory.findAll({
             attributes: ['accessory_id', 'name', 'type'], 
+            order: [['updatedAt', 'DESC']],
             raw: true, nest: true,
         });
         return { EM: "Lấy danh sách phụ kiện hỗ trợ thành công", EC: 0, DT: accessories };
@@ -23,17 +28,27 @@ const getSupportAccessoriesApiService = async () => {
     }
 };
 
-const checkAccessoryExistsApiService = async (name) => {
-    try {
-        const existingAccessory = await db.Accessory.findOne({
-            where: { name },
-            raw: true, nest: true,
-        });
-        return existingAccessory ? true : false;
-    } catch (error) {
-        console.error(error);
-        throw new Error("Lỗi khi kiểm tra phụ kiện tồn tại");
-    }
+const checkAccessoryExistsApiService = async ({name, accessoryId = null}) => {
+	try {
+        console.log(name, accessoryId)
+		const whereCondition = accessoryId
+			? {
+					name,
+					accessory_id: { [Op.ne]: accessoryId },
+			  }
+			: { name };
+
+		const existingAccessory = await db.Accessory.findOne({
+			where: whereCondition,
+			raw: true,
+			nest: true,
+		});
+
+		return !!existingAccessory;
+	} catch (error) {
+		console.error(error);
+		throw new Error("Lỗi khi kiểm tra phụ kiện tồn tại");
+	}
 };
 
 const createAccessoryApiService = async (data) => {
@@ -48,7 +63,6 @@ const createAccessoryApiService = async (data) => {
 
 const updateAccessoryApiService = async (data) => {
 	try {
-        console.log(data);
 		const [updatedCount] = await db.Accessory.update(
             {
                 name: data.name,

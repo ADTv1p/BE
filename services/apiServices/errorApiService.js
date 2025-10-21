@@ -3,7 +3,7 @@ import db from '../../models/index.js';
 
 const getAllErrorsApiService = async (req, res) => {
 	try {
-		const errors = await db.Error.findAll({ order: [["error_id", "ASC"]] });
+		const errors = await db.Error.findAll({ order: [['createdAt', 'DESC']], });
 		return { EC: 0, EM: "Lấy danh sách lỗi thành công", DT: errors };
 	} catch (err) {
 		console.error("Lỗi khi lấy danh sách lỗi:", err);
